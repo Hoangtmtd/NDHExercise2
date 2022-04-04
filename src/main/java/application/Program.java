@@ -211,6 +211,7 @@ public class Program {
             Session session = HibernateUtils.getSession();
             session.beginTransaction();
             for (Vehicle vehicle : vehicles) {
+                fileWriter.append("\n");
                 fileWriter.append(vehicle.getBrand());
                 fileWriter.append(vehicle.getModel());
                 fileWriter.append(Character.highSurrogate(vehicle.getNumberOfSeats()));
