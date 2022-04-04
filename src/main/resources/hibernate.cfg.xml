@@ -15,7 +15,7 @@
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</property>
         <property name="hibernate.connection.autocommit">false</property>
-        <!--        <property name="cache.use_second_level_cache">true</property>-->
+
 
         <mapping class="entity.Vehicle"/>
         <mapping class="entity.Customer"/>

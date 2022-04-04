@@ -1,10 +1,12 @@
 package application;
 
-import dao.RentalDao;
-import dao.impl.RentalDaoImpl;
 import entity.Customer;
 import entity.Rental;
 import entity.Vehicle;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.hibernate.Session;
 import service.CustomerService;
 import service.RentalService;
 import service.VehicleService;
@@ -13,8 +15,11 @@ import service.impl.RentalServiceImpl;
 import service.impl.VehicleServiceImpl;
 import util.HibernateUtils;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Program {
@@ -23,9 +28,6 @@ public class Program {
     private static final CustomerService customerService = new CustomerServiceImpl();
     private static final RentalService rentalService = new RentalServiceImpl();
 
-    /**
-     * Generate database in the first time using app
-     */
     static {
         HibernateUtils.getSession().close();
     }
@@ -180,11 +182,46 @@ public class Program {
     }
 
     public static void importData() {
-        System.out.println("I'm sleepy");
+        String csvFilePath = "src\\main\\resources\\Data.csv";
+        try {
+            BufferedReader lineReader = new BufferedReader(new FileReader(csvFilePath));
+            CSVParser records = CSVParser.parse(lineReader, CSVFormat.EXCEL.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
+            Session session = HibernateUtils.getSession();
+            session.beginTransaction();
+            for (CSVRecord record : records) {
+                Vehicle vehicle = new Vehicle();
+                vehicle.setBrand(record.get(0));
+                vehicle.setModel(record.get(1));
+                vehicle.setNumberOfSeats(Integer.parseInt(record.get(2)));
+                vehicle.setLicensePlate(record.get(3));
+                session.save(vehicle);
+            }
+            session.getTransaction().commit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Import Successfully ");
     }
 
     public static void exportData() {
-        System.out.println("I'm sleepy");
+        String csvFilePath = "src\\main\\resources\\output.csv";
+        List<Vehicle> vehicles = vehicleService.getAllVehicle();
+        try {
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(csvFilePath));
+            fileWriter.write("brand,model,number_of_seat,license_plate");
+            Session session = HibernateUtils.getSession();
+            session.beginTransaction();
+            for (Vehicle vehicle : vehicles) {
+                fileWriter.append(vehicle.getBrand());
+                fileWriter.append(vehicle.getModel());
+                fileWriter.append(Character.highSurrogate(vehicle.getNumberOfSeats()));
+                fileWriter.append(vehicle.getLicensePlate());
+            }
+            fileWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("Export Successfully");
     }
 
     public static void exitProgram() {

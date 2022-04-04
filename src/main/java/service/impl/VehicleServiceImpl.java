@@ -56,10 +56,9 @@ public class VehicleServiceImpl implements VehicleService {
         Rental rental = rentalDao.getRentalByVehicleId(vehicleId);
         Customer customer = rental.getCustomer();
         customer.setRentals(Collections.emptyList());
-//        customerDao.updateRental(customer.getId());
         customerDao.update(customer);
         vehicleDao.update(vehicle);
-        if(!rentalDao.deleteById(rental.getId())){
+        if (!rentalDao.deleteById(rental.getId())) {
             return false;
         }
         return true;
